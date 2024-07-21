@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/search_button"
+        android:title="搜索"
+        android:icon="@drawable/baseline_search_24"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/view_switcher"
+        android:title="视图"
+        android:icon="@drawable/baseline_view_list_24"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/select_all"
+        android:title="全选"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/edit_tags"
+        android:title="编辑标签"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/about"
+        android:title="关于我们"
+        app:showAsAction="never"
+        />
+</menu>

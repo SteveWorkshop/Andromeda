@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".pages.DrawPage">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp">
+            <Button
+                style="@style/btn_pen_menu_rejuv"
+                android:id="@+id/btn_pen"
+                android:drawableStart="@drawable/baseline_pen_color_24"
+                android:text="pen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                style="@style/btn_pen_menu_rejuv"
+                android:text="eraser"
+                android:id="@+id/btn_eraser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                style="@style/btn_pen_menu_rejuv"
+                android:text="insert image"
+                android:id="@+id/btn_insert_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:text="clean"
+                style="@style/btn_pen_menu_rejuv"
+                android:id="@+id/btn_clean"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:text="undo"
+                style="@style/btn_pen_menu_rejuv"
+                android:id="@+id/btn_undo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:text="redo"
+                style="@style/btn_pen_menu_rejuv"
+                android:id="@+id/btn_redo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.example.andromeda.comp.CanvasFlyout
+        android:background="#ffffff"
+        android:id="@+id/canvas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="300px"
+            android:src="@drawable/ninja_cat"/>
+        <TextView
+            android:gravity="center"
+            android:textColor="#FF0000"
+            android:text="HMM... THIS PAGE IS STILL UNDER CONSTRUCTION&#13;&#10;This build is intented for dev, validation and testing.&#13;&#10;It is not for selfhosting yet.&#13;&#10;Thanks for your patience!"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</LinearLayout>

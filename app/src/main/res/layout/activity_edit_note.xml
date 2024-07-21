@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EditNoteActivity">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <EditText
+            android:id="@+id/note_title_txb"
+            android:hint="标题"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:textSize="30dp"
+            android:layout_height="match_parent"/>
+
+        <!--   todo: under reconstruction to improve UI    -->
+        <Button
+            android:id="@+id/list_popup_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"/>
+    </LinearLayout>
+    <EditText
+        android:id="@+id/edit_area_txb"
+        android:inputType="textMultiLine"
+        android:layout_width="match_parent"
+        android:hint="笔记内容"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:gravity="top"
+        />
+</LinearLayout>

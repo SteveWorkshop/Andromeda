@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/notes_list"
+        android:enabled="true"
+        android:icon="@drawable/baseline_edit_note_24"
+        android:title="笔记"/>
+    <item
+        android:id="@+id/draw_pad"
+        android:enabled="true"
+        android:icon="@drawable/baseline_draw_24"
+        android:title="画板"/>
+</menu>
