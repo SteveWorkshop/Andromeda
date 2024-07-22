@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.andromeda.adapter.NoteAdapter;
+import com.example.andromeda.adapter.TagAdapter;
 import com.example.andromeda.entity.vo.NoteVO;
 
 import com.example.andromeda.EditNoteActivity;
@@ -31,6 +33,7 @@ import com.example.andromeda.R;
 import com.example.andromeda.databinding.FragmentNotePageBinding;
 import com.example.andromeda.service.NoteService;
 import com.example.andromeda.service.impl.NoteServiceImpl;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
 import java.util.List;
@@ -118,7 +121,7 @@ public class NotePage extends Fragment {
         });
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(binding.noteToolbar);
-
+        registerForContextMenu(binding.noteListsView);
         return view;
     }
 
@@ -175,6 +178,45 @@ public class NotePage extends Fragment {
                 break;
             }
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unregisterForContextMenu(binding.noteListsView);
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.note_press_menu,menu);
+    }
+
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.note_remove_item:{
+                MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
+                builder.setTitle("确认删除？");
+                builder.setMessage("在当前版本中，删除笔记将永远无法恢复，未来将提供回收站功能，将来将可以恢复现在删除的笔记");
+                builder.setPositiveButton("确定",(dialog,which)->{
+                    int mp=((NoteAdapter)binding.noteListsView.getAdapter()).getMPosition();
+                    NoteVO toBeRemove= noteVOList.get(mp);
+                    noteService.deleteById(toBeRemove.id);
+                    noteVOList.remove(mp);
+                    binding.noteListsView.getAdapter().notifyItemRemoved(mp);
+                });
+                builder.setNegativeButton("取消",(dialog,which)->{
+
+                });
+                builder.show();
+                break;
+            }
+            default:{break;}
+        }
+        return super.onContextItemSelected(item);
     }
 
     @Override

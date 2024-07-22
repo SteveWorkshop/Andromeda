@@ -43,9 +43,14 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         holder.noteView.setOnClickListener(v -> {
             int position = holder.getAbsoluteAdapterPosition();//这个场景下问题不大
             //还要记住是谁
-            mPosition=position;
+            //mPosition=position;
             NoteVO note = noteVOList.get(position);
             callBack.onClick(note,position);
+        });
+        //长按逻辑，保存按压位置
+        holder.itemView.setOnLongClickListener(v->{
+            mPosition= holder.getAbsoluteAdapterPosition();
+            return false;
         });
         return holder;
     }

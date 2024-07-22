@@ -151,7 +151,7 @@ public class TagEditPage extends Fragment {
             case R.id.tag_remove_item:{
                 MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
                 builder.setTitle("确认删除？");
-                builder.setMessage("删除此标签为不可逆操作，如果当前有笔记使用此标签，则无法删除此标签");
+                builder.setMessage("在当前版本，删除此标签为不可逆操作，如果当前有笔记使用此标签，则无法删除此标签");
                 builder.setPositiveButton("确定",(dialog,which)->{
                     int mp=((TagAdapter)binding.tagListsView.getAdapter()).getMPosition();
                     Tag toBeRemove=tagList.get(mp);
