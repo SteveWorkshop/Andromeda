@@ -16,49 +16,54 @@
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="50dp">
-            <Button
-                style="@style/btn_pen_menu_rejuv"
-                android:id="@+id/btn_pen"
-                android:drawableStart="@drawable/baseline_pen_color_24"
-                android:text="pen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <ImageButton
+                android:id="@+id/btn_pen_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pen"/>
+            <ImageButton
+                android:id="@+id/btn_eraser_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_eraser"/>
+            <ImageButton
+                android:id="@+id/btn_insert_image_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_insert"/>
 
-            <Button
-                style="@style/btn_pen_menu_rejuv"
-                android:text="eraser"
-                android:id="@+id/btn_eraser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                style="@style/btn_pen_menu_rejuv"
-                android:text="insert image"
-                android:id="@+id/btn_insert_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:text="clean"
-                style="@style/btn_pen_menu_rejuv"
-                android:id="@+id/btn_clean"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:text="undo"
-                style="@style/btn_pen_menu_rejuv"
-                android:id="@+id/btn_undo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:text="redo"
-                style="@style/btn_pen_menu_rejuv"
-                android:id="@+id/btn_redo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <ImageButton
+                android:id="@+id/btn_clean_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_clean"/>
+
+            <ImageButton
+                android:id="@+id/btn_undo_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_undo"/>
+            <ImageButton
+                android:id="@+id/btn_redo_i"
+                android:background="#000000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_redo"/>
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- TODO: Update blank fragment layout -->
     <com.example.andromeda.comp.CanvasFlyout
         android:background="#ffffff"
         android:id="@+id/canvas"

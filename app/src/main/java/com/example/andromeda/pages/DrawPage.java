@@ -102,26 +102,23 @@ public class DrawPage extends Fragment {
         View view=binding.getRoot();
         canvasFlyout=binding.canvas;
 
-        binding.btnPen.setOnClickListener(e->{
-            showPopupMenu(binding.btnPen);
+        binding.btnPenI.setOnClickListener(e->{
+            showPopupMenu(binding.btnPenI);
         });
 
 
-        binding.btnEraser.setOnClickListener(e->{
-            if(binding.btnEraser.isSelected())
+        binding.btnEraserI.setOnClickListener(e->{
+            if(binding.btnEraserI.isSelected())
             {
                 //todo: 记住上一个选择颜色
                 canvasFlyout.setPaintColor(Color.CYAN);
-                binding.btnEraser.setSelected(false);
+                binding.btnEraserI.setSelected(false);
             }
             else{
                 canvasFlyout.setPaintColor(canvasFlyout.getBackGround());
-                binding.btnEraser.setSelected(true);
+                binding.btnEraserI.setSelected(true);
             }
         });
-
-
-
 
         return view;
     }
