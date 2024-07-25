@@ -60,6 +60,7 @@ public class DrawPage extends Fragment {
 
     private CanvasFlyout canvasFlyout;
 
+    private int colorSelected=Color.CYAN;
 
     private Uri imageUri;
 
