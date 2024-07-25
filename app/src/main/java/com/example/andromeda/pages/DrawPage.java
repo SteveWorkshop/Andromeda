@@ -121,6 +121,8 @@ public class DrawPage extends Fragment {
             }
         });
 
+
+
         return view;
     }
 
@@ -146,6 +148,10 @@ public class DrawPage extends Fragment {
                 }
                 case R.id.size_more:{
                     showSizeSelector();
+                    break;
+                }
+                case R.id.popup_picker:{
+                    shoColorPicker();
                     break;
                 }
                 default:{
@@ -174,6 +180,22 @@ public class DrawPage extends Fragment {
         });
         builder.show();
     }
+
+    private void shoColorPicker()
+    {
+        MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("选择画笔颜色");
+        View dialogView=LayoutInflater.from(getContext()).inflate(R.layout.flyout_simple_color_picker,null);
+        builder.setView(dialogView);
+        builder.setPositiveButton("确定",(dialog,which)->{
+
+        });
+        builder.setNegativeButton("取消",((dialog, which) -> {
+
+        }));
+        builder.show();
+    }
+
 
     private void selectInsertSource(View view)
     {
