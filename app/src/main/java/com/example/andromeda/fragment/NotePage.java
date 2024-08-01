@@ -1,4 +1,4 @@
-package com.example.andromeda.pages;
+package com.example.andromeda.fragment;
 
 import android.app.Activity;
 
@@ -24,15 +24,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.andromeda.BaseApplication;
 import com.example.andromeda.adapter.NoteAdapter;
-import com.example.andromeda.adapter.TagAdapter;
+import com.example.andromeda.config.DBConfig;
+import com.example.andromeda.dao.NoteDao;
 import com.example.andromeda.entity.vo.NoteVO;
 
-import com.example.andromeda.EditNoteActivity;
+import com.example.andromeda.ui.EditNoteActivity;
 import com.example.andromeda.R;
 import com.example.andromeda.databinding.FragmentNotePageBinding;
-import com.example.andromeda.service.NoteService;
-import com.example.andromeda.service.impl.NoteServiceImpl;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
@@ -66,7 +66,7 @@ public class NotePage extends Fragment {
 
     private FragmentNotePageBinding binding;
 
-    private NoteService noteService;
+    private NoteDao noteDao;
 
     private List<NoteVO> noteVOList;
 
@@ -110,7 +110,7 @@ public class NotePage extends Fragment {
         // Inflate the layout for this fragment
         binding=FragmentNotePageBinding.inflate(inflater,container,false);
         View view = binding.getRoot();
-        noteVOList=noteService.getAllPreview();
+        noteVOList=noteDao.getAllPreview_V2();
         refreshView_v2();
 
 
@@ -128,7 +128,7 @@ public class NotePage extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        noteService= NoteServiceImpl.getInstance(context.getApplicationContext());
+        noteDao= DBConfig.getInstance(BaseApplication.getApplication()).getNoteDao();
     }
 
     @Override
@@ -204,7 +204,7 @@ public class NotePage extends Fragment {
                 builder.setPositiveButton("确定",(dialog,which)->{
                     int mp=((NoteAdapter)binding.noteListsView.getAdapter()).getMPosition();
                     NoteVO toBeRemove= noteVOList.get(mp);
-                    noteService.deleteById(toBeRemove.id);
+                    noteDao.deleteById(toBeRemove.id);
                     noteVOList.remove(mp);
                     binding.noteListsView.getAdapter().notifyItemRemoved(mp);
                 });

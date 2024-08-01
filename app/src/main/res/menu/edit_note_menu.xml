@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/cache_note_menu"
+        app:showAsAction="always"
+        android:title="缓存"
+        android:icon="@drawable/baseline_cached_24"
+        android:tooltipText="缓存笔记内容以防止窗口意外关闭"/>
+    <item
+        android:title="存储"
+        android:id="@+id/save_note_menu"
+        android:icon="@drawable/baseline_save_24"
+        app:showAsAction="always"/>
+    <item
+        android:title="导出"
+        android:id="@+id/export_note"
+        android:icon="@drawable/baseline_ios_share_24"
+        app:showAsAction="always"/>
+</menu>

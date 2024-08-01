@@ -1,4 +1,4 @@
-package com.example.andromeda.comp;
+package com.example.andromeda.ui.flyout;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,7 +12,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.andromeda.comp.model.LinePath;
 import com.example.andromeda.comp.model.Model;
 
 import java.util.ArrayList;

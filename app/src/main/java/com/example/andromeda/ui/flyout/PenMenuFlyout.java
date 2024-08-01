@@ -1,4 +1,4 @@
-package com.example.andromeda.comp;
+package com.example.andromeda.ui.flyout;
 
 import android.content.Context;
 import android.view.LayoutInflater;

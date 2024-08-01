@@ -9,10 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.andromeda.BaseApplication;
 import com.example.andromeda.R;
+import com.example.andromeda.config.DBConfig;
+import com.example.andromeda.dao.TagDao;
 import com.example.andromeda.entity.Tag;
-import com.example.andromeda.service.TagService;
-import com.example.andromeda.service.impl.TagServiceImpl;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
@@ -53,8 +54,8 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
                 String tName=eText.getText().toString();
                 tag.setTagName(tName);
                 //临时调动一下吧
-                TagService tagService= TagServiceImpl.getInstance(parent.getContext());
-                tagService.updateTag(tag);
+                TagDao tagDao= DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
+                tagDao.updateTag(tag);
                 this.notifyItemChanged(position);
             });
             builder.setNegativeButton("取消",((dialog, which) -> {

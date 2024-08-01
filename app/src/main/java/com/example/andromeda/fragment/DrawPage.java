@@ -1,8 +1,6 @@
-package com.example.andromeda.pages;
+package com.example.andromeda.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,19 +17,17 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.andromeda.R;
-import com.example.andromeda.comp.CanvasFlyout;
+import com.example.andromeda.ui.flyout.CanvasFlyout;
 import com.example.andromeda.databinding.FragmentDrawPageBinding;
 import com.example.andromeda.util.RandomUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**

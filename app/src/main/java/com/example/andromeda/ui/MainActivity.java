@@ -1,10 +1,8 @@
-package com.example.andromeda;
+package com.example.andromeda.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -13,9 +11,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.andromeda.R;
 import com.example.andromeda.databinding.ActivityMainBinding;
-import com.example.andromeda.pages.DrawPage;
-import com.example.andromeda.pages.NotePage;
+import com.example.andromeda.fragment.DrawPage;
+import com.example.andromeda.fragment.NotePage;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

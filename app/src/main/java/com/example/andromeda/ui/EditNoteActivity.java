@@ -1,10 +1,12 @@
-package com.example.andromeda;
+package com.example.andromeda.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,29 +14,33 @@ import android.widget.ListPopupWindow;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.util.StringUtil;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.andromeda.BaseApplication;
+import com.example.andromeda.R;
 import com.example.andromeda.config.DBConfig;
 import com.example.andromeda.dao.NoteDao;
+import com.example.andromeda.dao.TagDao;
 import com.example.andromeda.databinding.ActivityEditNoteBinding;
 import com.example.andromeda.entity.Note;
 import com.example.andromeda.entity.Tag;
-import com.example.andromeda.entity.dto.NoteDTO;
 import com.example.andromeda.entity.vo.NoteVO;
-import com.example.andromeda.service.NoteService;
-import com.example.andromeda.service.TagService;
-import com.example.andromeda.service.impl.NoteServiceImpl;
-import com.example.andromeda.service.impl.TagServiceImpl;
-import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.example.andromeda.vm.EditNoteViewModel;
+import com.example.andromeda.vm.pages.EditNoteViewModelFactory;
+
 
 import java.util.List;
 
 public class EditNoteActivity extends AppCompatActivity {
     private static final String TAG = "EditNoteActivity";
+
+
+    private EditNoteViewModel viewModel;
 
     public static final int MODE_EDIT=0;
     public static final int MODE_APPEND=1;
@@ -49,14 +55,15 @@ public class EditNoteActivity extends AppCompatActivity {
     private String tagName;
 
 
-    private NoteService noteService;
-    private TagService tagService;
+    private NoteDao noteDao;
+    private TagDao tagDao;
 
     private List<Tag> tagListForSelection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding=ActivityEditNoteBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
@@ -66,11 +73,20 @@ public class EditNoteActivity extends AppCompatActivity {
             return insets;
         });
 
+        setSupportActionBar(binding.editNoteToolbar);
 
-        noteService= NoteServiceImpl.getInstance(this.getApplicationContext());
-        tagService= TagServiceImpl.getInstance(this.getApplicationContext());
+        //关联viewmodel
+        viewModel= new ViewModelProvider(this,new EditNoteViewModelFactory()).get(EditNoteViewModel.class);
 
-        tagListForSelection=tagService.getAll();
+        reFindStatus();
+
+        noteDao= DBConfig.getInstance(BaseApplication.getApplication()).getNoteDao();
+        tagDao=DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
+
+        //noteService= NoteServiceImpl.getInstance(this.getApplicationContext());
+        //tagService= TagServiceImpl.getInstance(this.getApplicationContext());
+
+        tagListForSelection=tagDao.getAll();
 
         String[] labels=convertTagDisplayTable(tagListForSelection);
 
@@ -84,8 +100,11 @@ public class EditNoteActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name=tagListForSelection.get(position).getTagName();
                 Long aid=tagListForSelection.get(position).getId();
+                viewModel.selectTag(aid,name);
                 tagId=aid;
                 tagName=name;
+
+
                 binding.listPopupButton.setText(name);
                 listPopupWindow.dismiss();
             }
@@ -101,6 +120,9 @@ public class EditNoteActivity extends AppCompatActivity {
             //切换为编辑模式
             mode=MODE_EDIT;
             edid=id;
+
+            viewModel.setEditInfo(id,MODE_EDIT);
+
             loadNote(edid);
             MyWatcher myWatcher = new MyWatcher();            
             binding.noteTitleTxb.addTextChangedListener(myWatcher);
@@ -108,10 +130,76 @@ public class EditNoteActivity extends AppCompatActivity {
         }
         else {
             mode=MODE_APPEND;
+
+            viewModel.setEM(MODE_APPEND);
             //do nothing
         }
 
         
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.edit_note_menu,menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        System.out.println("???????????????????????????????");
+        switch (item.getItemId())
+        {
+            case R.id.save_note_menu:
+            {
+                //Toast.makeText(this, "好好好好好赢赢赢赢赢对对对对对", Toast.LENGTH_SHORT).show();
+                //开启后台任务
+                String title = binding.noteTitleTxb.getText().toString();
+                Long tag=tagId;
+                String content = binding.editAreaTxb.getText().toString();
+                Note note=new Note();
+                note.setTitle(title);
+                note.setTag(tag);
+                note.setContent(content);
+                if(mode==MODE_APPEND)//添加笔记
+                {
+                    new Thread(()->{
+                        Long nwid = saveNote(note);
+                        if(nwid>0)
+                        {
+                            runOnUiThread(()->{
+                                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }).start();
+                }
+                else {
+                    if(isModified)
+                    {
+                        note.setId(edid);
+                        new Thread(()->{
+                            int rows = updateNote(note);
+                            if (rows>0)
+                            {
+                                isModified=false;
+                                runOnUiThread(()->{
+                                    Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }).start();
+                    }
+                }
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @SuppressLint("MissingSuperCall")
@@ -195,31 +283,17 @@ public class EditNoteActivity extends AppCompatActivity {
 
     private Long saveNote(Note note)
     {
-        NoteDTO note1=new NoteDTO();
-        note1.setTag(note.getTag());
-        note1.setContent(note.getContent());
-        note1.setTitle(note.getTitle());
-        note1.setCreateTime(note.getCreateTime());
-        note1.setUpdateTime(note.getUpdateTime());
-        return noteService.insertNote(note1);
+        return noteDao.insertNote(note);
     }
 
     private int updateNote(Note note)
     {
-
-        NoteDTO note1=new NoteDTO();
-        note1.setId(note.getId());
-        note1.setTag(note.getTag());
-        note1.setContent(note.getContent());
-        note1.setTitle(note.getTitle());
-        note1.setCreateTime(note.getCreateTime());
-        note1.setUpdateTime(note.getUpdateTime());
-        return noteService.updateNote(note1);
+        return noteDao.updateNote(note);
     }
 
     private void loadNote(Long id)
     {
-        NoteVO note = noteService.getById(id);
+        NoteVO note = noteDao.getById_V2(id);
         if(note==null)
         {
             Toast.makeText(this, "未知错误，请尝试重启应用程序，如果问题依旧联系我们", Toast.LENGTH_SHORT).show();
@@ -262,5 +336,14 @@ public class EditNoteActivity extends AppCompatActivity {
             ret[i]=tagList.get(i).getTagName();
         }
         return ret;
+    }
+
+    private void reFindStatus()
+    {
+        isModified=viewModel.isModified();
+        mode=viewModel.getMode();
+        edid=viewModel.getEdid();
+        tagId=viewModel.getTagId();
+        tagName=viewModel.getTagName();
     }
 }

@@ -22,7 +22,7 @@ public interface TagDao {
     //todo：分页查询
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("select id,tagName from Tag order by updateTime desc")
-    List<Tag> getall();
+    List<Tag> getAll();
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("select id,tagName from Tag where id=:id")

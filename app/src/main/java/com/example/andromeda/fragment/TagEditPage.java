@@ -1,7 +1,6 @@
-package com.example.andromeda.pages;
+package com.example.andromeda.fragment;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,22 +11,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.andromeda.BaseApplication;
 import com.example.andromeda.R;
 import com.example.andromeda.adapter.TagAdapter;
 import com.example.andromeda.config.DBConfig;
+import com.example.andromeda.dao.NoteDao;
 import com.example.andromeda.dao.TagDao;
 import com.example.andromeda.databinding.FragmentTagEditPageBinding;
 import com.example.andromeda.entity.Tag;
-import com.example.andromeda.service.TagService;
-import com.example.andromeda.service.impl.TagServiceImpl;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
@@ -52,8 +49,8 @@ public class TagEditPage extends Fragment {
     
     private FragmentTagEditPageBinding binding;
 
-    //private TagDao tagDao;
-    private TagService tagService;
+    private TagDao tagDao;
+    private NoteDao noteDao;
 
     private List<Tag> tagList;
 
@@ -114,7 +111,7 @@ public class TagEditPage extends Fragment {
                     Log.d(TAG, "onCreateView: "+x);
                     Tag tag=new Tag();
                     tag.setTagName(x);
-                    Long l = tagService.addTag(tag);
+                    Long l = tagDao.insertTag(tag);
                     tag.setId(l);
                     //注意！这里不可以重新查询，否则会报不一致错误，必须手动维护一致性！
                     tagList.add(0,tag);
@@ -128,7 +125,7 @@ public class TagEditPage extends Fragment {
             builder.show();
         });
 
-        tagList=tagService.getAll();
+        tagList=tagDao.getAll();
         refreshView();
 
 
@@ -156,11 +153,12 @@ public class TagEditPage extends Fragment {
                     int mp=((TagAdapter)binding.tagListsView.getAdapter()).getMPosition();
                     Tag toBeRemove=tagList.get(mp);
 
-                    if(tagService.checkIfUse(toBeRemove.getId())){
+                    int rows=noteDao.getCount(toBeRemove.getId());
+                    if(rows>0){
                         Toast.makeText(getContext(), "不能删除这个标签，因为正在被使用", Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        tagService.deleteById(toBeRemove.getId());
+                        tagDao.deleteById(toBeRemove.getId());
                         tagList.remove(mp);
                         binding.tagListsView.getAdapter().notifyItemRemoved(mp);
                     }
@@ -182,8 +180,8 @@ public class TagEditPage extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //tagDao= DBConfig.getInstance(context.getApplicationContext()).getTagDao();
-        tagService= TagServiceImpl.getInstance(context);
+        tagDao= DBConfig.getInstance(context.getApplicationContext()).getTagDao();
+        noteDao=DBConfig.getInstance(BaseApplication.getApplication()).getNoteDao();
     }
 
 
