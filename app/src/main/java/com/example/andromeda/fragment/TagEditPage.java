@@ -190,7 +190,30 @@ public class TagEditPage extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.tagListsView.setLayoutManager(layoutManager);
         TagAdapter adapter=new TagAdapter(tagList);
+        adapter.setCallBack((tag,position)->{
+            MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
+            builder.setTitle("修改名称");
+            LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+            View digView=layoutInflater.inflate(R.layout.tag_edit_dialog,null);
 
+            EditText eText = digView.findViewById(R.id.txb_tag_name_edit);
+            eText.setText(tag.getTagName());
+            eText.setSelectAllOnFocus(true);
+
+
+            builder.setView(digView);
+            builder.setPositiveButton("确定",(dialog,which)->{
+
+                String tName=eText.getText().toString();
+                tag.setTagName(tName);
+                tagDao.updateTag(tag);
+                adapter.notifyItemChanged(position);
+            });
+            builder.setNegativeButton("取消",((dialog, which) -> {
+
+            }));
+            builder.show();
+        });
 
 
         binding.tagListsView.setAdapter(adapter);

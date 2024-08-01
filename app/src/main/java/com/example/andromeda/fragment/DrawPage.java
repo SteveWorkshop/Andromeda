@@ -123,6 +123,18 @@ public class DrawPage extends Fragment {
     }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("Ninja Cat");
+        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+        View digView=layoutInflater.inflate(R.layout.warning_dialog,null);
+        builder.setView(digView);
+        builder.setPositiveButton("确定",(dialog,which)->{});
+        builder.show();
+    }
+
     private void showPopupMenu(View view){
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
         popupMenu.getMenuInflater().inflate(R.menu.pen_select_menu,popupMenu.getMenu());

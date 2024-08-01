@@ -28,6 +28,10 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
     @Setter
     private int mPosition=-1;
 
+    @Getter
+    @Setter
+    private CallBack callBack;
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -37,31 +41,32 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
 
             int position=holder.getAbsoluteAdapterPosition();
             Tag tag=tagList.get(position);
+            callBack.onClick(tag,position);
 
-            MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(parent.getContext());
-            builder.setTitle("修改名称");
-            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-            View digView=layoutInflater.inflate(R.layout.tag_edit_dialog,null);
-
-            EditText eText = digView.findViewById(R.id.txb_tag_name_edit);
-            eText.setText(tag.getTagName());
-            eText.setSelectAllOnFocus(true);
-
-
-            builder.setView(digView);
-            builder.setPositiveButton("确定",(dialog,which)->{
-
-                String tName=eText.getText().toString();
-                tag.setTagName(tName);
-                //临时调动一下吧
-                TagDao tagDao= DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
-                tagDao.updateTag(tag);
-                this.notifyItemChanged(position);
-            });
-            builder.setNegativeButton("取消",((dialog, which) -> {
-
-            }));
-            builder.show();
+//            MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(parent.getContext());
+//            builder.setTitle("修改名称");
+//            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+//            View digView=layoutInflater.inflate(R.layout.tag_edit_dialog,null);
+//
+//            EditText eText = digView.findViewById(R.id.txb_tag_name_edit);
+//            eText.setText(tag.getTagName());
+//            eText.setSelectAllOnFocus(true);
+//
+//
+//            builder.setView(digView);
+//            builder.setPositiveButton("确定",(dialog,which)->{
+//
+//                String tName=eText.getText().toString();
+//                tag.setTagName(tName);
+//                //临时调动一下吧
+//                TagDao tagDao= DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
+//                tagDao.updateTag(tag);
+//                this.notifyItemChanged(position);
+//            });
+//            builder.setNegativeButton("取消",((dialog, which) -> {
+//
+//            }));
+//            builder.show();
         });
 
         holder.itemView.setOnLongClickListener(v->{
@@ -98,5 +103,9 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
             tagName=itemView.findViewById(R.id.txb_tag_name);
             tagView=itemView;
         }
+    }
+
+    public interface CallBack{
+        void onClick(Tag tag,int position);
     }
 }
