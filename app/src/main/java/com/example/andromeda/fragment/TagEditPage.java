@@ -1,5 +1,6 @@
 package com.example.andromeda.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -206,8 +207,18 @@ public class TagEditPage extends Fragment {
 
                 String tName=eText.getText().toString();
                 tag.setTagName(tName);
-                tagDao.updateTag(tag);
-                adapter.notifyItemChanged(position);
+                Activity activity=getActivity();
+                new Thread(()->{
+                    int rows = tagDao.updateTag(tag);
+                    if(rows>0)
+                    {
+                        activity.runOnUiThread(()->{
+                            Toast.makeText(activity, "修改成功！", Toast.LENGTH_SHORT).show();
+                            adapter.notifyItemChanged(position);
+                        });
+                    }
+                }).start();
+                
             });
             builder.setNegativeButton("取消",((dialog, which) -> {
 

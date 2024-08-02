@@ -99,12 +99,12 @@ public class DrawPage extends Fragment {
         View view=binding.getRoot();
         canvasFlyout=binding.canvas;
 
-        binding.btnPenI.setOnClickListener(e->{
+        binding.btnPenI.setOnClickListener(v->{
             showPopupMenu(binding.btnPenI);
         });
 
 
-        binding.btnEraserI.setOnClickListener(e->{
+        binding.btnEraserI.setOnClickListener(v->{
             if(binding.btnEraserI.isSelected())
             {
                 //todo: 记住上一个选择颜色
@@ -117,7 +117,13 @@ public class DrawPage extends Fragment {
             }
         });
 
+        binding.btnCleanI.setOnClickListener(v->{
+            canvasFlyout.clearAll();
+        });
 
+        binding.btnUndoI.setOnClickListener(v->{
+            canvasFlyout.undo();
+        });
 
         return view;
     }

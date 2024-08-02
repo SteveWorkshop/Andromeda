@@ -187,6 +187,14 @@ public class CanvasFlyout extends View {
         }
     }
 
+
+    public void clearAll()
+    {
+        pathSaveList.clear();
+        paths.clear();
+        invalidate();
+    }
+
     //I hope devices will follow this standard, if it does not work, then I have no way to solve.
     //todo: better handle input device type
     private boolean canOperate(float type,int mode)

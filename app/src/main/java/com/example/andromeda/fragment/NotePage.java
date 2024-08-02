@@ -204,9 +204,14 @@ public class NotePage extends Fragment {
                 builder.setPositiveButton("确定",(dialog,which)->{
                     int mp=((NoteAdapter)binding.noteListsView.getAdapter()).getMPosition();
                     NoteVO toBeRemove= noteVOList.get(mp);
-                    noteDao.deleteById(toBeRemove.id);
-                    noteVOList.remove(mp);
-                    binding.noteListsView.getAdapter().notifyItemRemoved(mp);
+                    Activity activity=getActivity();
+                    new Thread(()->{
+                        noteDao.deleteById(toBeRemove.id);
+                        noteVOList.remove(mp);
+                        activity.runOnUiThread(()->{
+                            binding.noteListsView.getAdapter().notifyItemRemoved(mp);
+                        });
+                    }).start();
                 });
                 builder.setNegativeButton("取消",(dialog,which)->{
 
