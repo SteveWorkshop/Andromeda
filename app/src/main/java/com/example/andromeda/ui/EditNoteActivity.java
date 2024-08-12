@@ -1,8 +1,14 @@
 package com.example.andromeda.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -15,7 +21,10 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -32,8 +41,16 @@ import com.example.andromeda.entity.Tag;
 import com.example.andromeda.entity.vo.NoteVO;
 import com.example.andromeda.vm.EditNoteViewModel;
 import com.example.andromeda.vm.pages.EditNoteViewModelFactory;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOError;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 public class EditNoteActivity extends AppCompatActivity {
@@ -44,6 +61,8 @@ public class EditNoteActivity extends AppCompatActivity {
 
     public static final int MODE_EDIT=0;
     public static final int MODE_APPEND=1;
+
+    public static final int REQUEST_CODE=1000;
 
     private boolean isModified=false;
     private int mode=0;
@@ -157,41 +176,57 @@ public class EditNoteActivity extends AppCompatActivity {
             {
                 //Toast.makeText(this, "好好好好好赢赢赢赢赢对对对对对", Toast.LENGTH_SHORT).show();
                 //开启后台任务
-                String title = binding.noteTitleTxb.getText().toString();
-                Long tag=tagId;
-                String content = binding.editAreaTxb.getText().toString();
-                Note note=new Note();
-                note.setTitle(title);
-                note.setTag(tag);
-                note.setContent(content);
-                if(mode==MODE_APPEND)//添加笔记
-                {
-                    new Thread(()->{
-                        Long nwid = saveNote(note);
-                        if(nwid>0)
-                        {
-                            runOnUiThread(()->{
-                                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                    }).start();
-                }
-                else {
-                    if(isModified)
+                persistNote(id->{
+                    if(id>0)
                     {
-                        note.setId(edid);
-                        new Thread(()->{
-                            int rows = updateNote(note);
-                            if (rows>0)
-                            {
-                                isModified=false;
-                                runOnUiThread(()->{
-                                    Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-                                });
-                            }
-                        }).start();
+                        Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+
+                    }
+                },rows->{
+                    if(rows>0)
+                    {
+                        Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+
+                    }
+                });
+                break;
+            }
+            case R.id.export_note_menu:{
+                if(Build.VERSION.SDK_INT<Build.VERSION_CODES.R)
+                {
+                    if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED)
+                    {
+                        ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                    }
+                    else {
+                        exportNote(binding.noteTitleTxb.getText().toString(),binding.editAreaTxb.getText().toString(),tagName);
                     }
                 }
+                else{
+                    //android11以上的情况
+                    if(Environment.isExternalStorageManager())
+                    {
+                        //有权限，直接申请
+                        exportNote(binding.noteTitleTxb.getText().toString(),binding.editAreaTxb.getText().toString(),tagName);
+                    }
+                    else{
+                        MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(this);
+                        builder.setTitle("注意");
+                        builder.setMessage("由于在Android11之后，黏糊糊的Google培养基发生了成分变化，请在接下来的操作中，选择允许访问所有文件");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("确定",(dialog,which)->{
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                            intent.setData(Uri.parse("package:" + getPackageName()));
+                            startActivityForResult(intent, REQUEST_CODE);
+                        });
+                        builder.show();
+                    }
+                }
+
                 break;
             }
             default:{
@@ -206,80 +241,233 @@ public class EditNoteActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
+        Intent intent=new Intent();
+        if(isModified){
+
+            persistNote(id->{
+                if(id>0)
+                {
+                    Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                    NoteVO vo=new NoteVO();
+                    vo.id=id;
+                    vo.tagId=tagId;
+                    vo.tagName=tagName;
+                    vo.content=binding.editAreaTxb.getText().toString();
+                    vo.title=binding.noteTitleTxb.getText().toString();
+                    vo.createTime=System.currentTimeMillis();
+                    vo.updateTime=System.currentTimeMillis();
+
+                    intent.putExtra("data",vo);
+                    setResult(RESULT_OK,intent);
+                }
+                else{
+                    Toast.makeText(this, "出错了", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                }
+                finish();
+            },rows->{
+                if(rows>0)
+                {
+                    Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                    NoteVO vo=new NoteVO();
+                    vo.id=edid;
+                    vo.tagId=tagId;
+                    vo.tagName=tagName;
+                    vo.content=binding.editAreaTxb.getText().toString();
+                    vo.title=binding.noteTitleTxb.getText().toString();
+                    vo.createTime=System.currentTimeMillis();
+                    vo.updateTime=System.currentTimeMillis();
+                    intent.putExtra("data",vo);
+                    setResult(RESULT_OK,intent);
+
+                }
+                else{
+                    Toast.makeText(this, "出错了", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                }
+                finish();
+            });
+        }
+        else{
+            setResult(RESULT_OK);
+            finish();
+        }
+
+        //修改逻辑，不必要的情况下就别保存了
+//        String title = binding.noteTitleTxb.getText().toString();
+//        Long tag=tagId;
+//        String content = binding.editAreaTxb.getText().toString();
+//        Intent intent=new Intent();
+//        if(mode==MODE_APPEND)//添加笔记
+//        {
+//            Note note=new Note();
+//            note.setTitle(title);
+//            note.setTag(tag);
+//            note.setContent(content);
+//            Long nwid = saveNote(note);
+//            //intent.putExtra("mode",MODE_APPEND);
+//            if(nwid>0)
+//            {
+//                note.setId(nwid);
+//                //名称放进去
+//                NoteVO vo=new NoteVO();
+//                vo.id=nwid;
+//                vo.tagId=tagId;
+//                vo.tagName=tagName;
+//                vo.createTime=note.getCreateTime();
+//                vo.updateTime=note.getUpdateTime();
+//                vo.title=note.getTitle();
+//                vo.content=note.getContent();
+//
+//                intent.putExtra("data",vo);
+//                setResult(RESULT_OK,intent);
+//            }
+//            else{
+//                Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
+//                setResult(RESULT_CANCELED);
+//            }
+//        }
+//        else{//修改笔记
+//            if(isModified)
+//            {
+//                Toast.makeText(this, edid+", 检测到更改！", Toast.LENGTH_SHORT).show();
+//                //todo:异常处理
+//                Note note=new Note();
+//                note.setTitle(title);
+//                note.setTag(tag);
+//                note.setContent(content);
+//                note.setId(edid);
+//                //intent.putExtra("mode",MODE_EDIT);
+//
+//                NoteVO vo=new NoteVO();
+//                vo.id=edid;
+//                vo.tagId=tagId;
+//                vo.tagName=tagName;
+//                vo.createTime=note.getCreateTime();
+//                vo.updateTime=System.currentTimeMillis();
+//                vo.title=title;
+//                vo.content=content;
+//
+//
+//                int rows = updateNote(note);
+//                if(rows>0)
+//                {
+//                    intent.putExtra("data",vo);
+//                    setResult(RESULT_OK,intent);
+//                }
+//                else{
+//                    Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
+//                    setResult(RESULT_CANCELED);
+//                }
+//            }
+//            else{
+//                //什么都没做
+//                setResult(RESULT_OK);
+//            }
+//        }
+        //必须返回一个数据
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 1:{
+                if (grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    exportNote(binding.noteTitleTxb.getText().toString(),binding.editAreaTxb.getText().toString(),tagName);
+                } else {
+                    Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
+                }
+
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE&&Build.VERSION.SDK_INT>=Build.VERSION_CODES.R)
+        {
+            if (Environment.isExternalStorageManager()){
+                exportNote(binding.noteTitleTxb.getText().toString(),binding.editAreaTxb.getText().toString(),tagName);
+            }
+            else{
+                Toast.makeText(this, "我们需要管理外部存储的权限！", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void exportNote(String title, String content, String tagName)
+    {
+        System.out.println(title+" "+tagName+" "+content);
+        String path= Environment.getExternalStorageDirectory().getAbsolutePath()+"/andromeda";
+        File dir=new File(path);
+        if(!dir.exists())
+        {
+            dir.mkdir();
+        }
+        File file=new File(path,title+".txt");
+        try {
+            FileOutputStream os=new FileOutputStream(file);
+            BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(os));
+            writer.write(title+"\n");
+            writer.write("标签："+tagName+"\n");
+            writer.write("============================\n");
+            writer.write(content);
+            writer.flush();
+            writer.close();
+            Toast.makeText(this, "保存成功，Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "我们都有不顺利的时候", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private interface CallBack{
+        void call(long ret);
+    }
+
+    private void persistNote(CallBack callBack1,CallBack callBack2)
+    {
         String title = binding.noteTitleTxb.getText().toString();
         Long tag=tagId;
         String content = binding.editAreaTxb.getText().toString();
-        Intent intent=new Intent();
-        if(mode==MODE_APPEND)//添加笔记
+        if(isModified)
         {
             Note note=new Note();
             note.setTitle(title);
             note.setTag(tag);
             note.setContent(content);
-            Long nwid = saveNote(note);
-            intent.putExtra("mode",MODE_APPEND);
-            if(nwid>0)
+            if(mode==MODE_APPEND)//添加笔记
             {
-                note.setId(nwid);
-                //名称放进去
-                NoteVO vo=new NoteVO();
-                vo.id=nwid;
-                vo.tagId=tagId;
-                vo.tagName=tagName;
-                vo.createTime=note.getCreateTime();
-                vo.updateTime=note.getUpdateTime();
-                vo.title=note.getTitle();
-                vo.content=note.getContent();
-
-                intent.putExtra("data",vo);
-                setResult(RESULT_OK,intent);
+                new Thread(()->{
+                    Long ret = saveNote(note);
+                    runOnUiThread(()->{
+                        isModified=false;
+                        callBack1.call(ret);
+                    });
+                }).start();
             }
             else{
-                Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
-                setResult(RESULT_CANCELED);
-            }
-        }
-        else{//修改笔记
-            if(isModified)
-            {
-                Toast.makeText(this, edid+", 检测到更改！", Toast.LENGTH_SHORT).show();
-                //todo:异常处理
-                Note note=new Note();
-                note.setTitle(title);
-                note.setTag(tag);
-                note.setContent(content);
                 note.setId(edid);
-                intent.putExtra("mode",MODE_EDIT);
-
-                NoteVO vo=new NoteVO();
-                vo.id=edid;
-                vo.tagId=tagId;
-                vo.tagName=tagName;
-                vo.createTime=note.getCreateTime();
-                vo.updateTime=System.currentTimeMillis();
-                vo.title=title;
-                vo.content=content;
-
-
-                int rows = updateNote(note);
-                if(rows>0)
-                {
-                    intent.putExtra("data",vo);
-                    setResult(RESULT_OK,intent);
-                }
-                else{
-                    Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                }
-            }
-            else{
-                //什么都没做
-                setResult(RESULT_OK);
+                new Thread(()->{
+                    int ret = updateNote(note);
+                    runOnUiThread(()->{
+                        isModified=false;
+                        callBack2.call(ret);
+                    });
+                }).start();
             }
         }
-        //必须返回一个数据
-        finish();
     }
+
 
     private Long saveNote(Note note)
     {
@@ -303,6 +491,7 @@ public class EditNoteActivity extends AppCompatActivity {
         binding.noteTitleTxb.setText(note.title);
         binding.editAreaTxb.setText(note.content);
         tagId=note.tagId;
+        tagName=note.tagName;
         binding.listPopupButton.setText(note.tagName);
     }
 

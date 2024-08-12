@@ -14,7 +14,7 @@
         app:showAsAction="always"/>
     <item
         android:title="导出"
-        android:id="@+id/export_note"
+        android:id="@+id/export_note_menu"
         android:icon="@drawable/baseline_ios_share_24"
         app:showAsAction="always"/>
 </menu>

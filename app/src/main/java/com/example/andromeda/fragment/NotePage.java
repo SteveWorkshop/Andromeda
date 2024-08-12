@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -110,9 +111,14 @@ public class NotePage extends Fragment {
         // Inflate the layout for this fragment
         binding=FragmentNotePageBinding.inflate(inflater,container,false);
         View view = binding.getRoot();
-        noteVOList=noteDao.getAllPreview_V2();
-        refreshView_v2();
+        //
+        binding.noteLoadingProgressBar.setVisibility(View.VISIBLE);
+        binding.txbErrorNoteIndic.setVisibility(View.VISIBLE);
 
+        ((AppCompatActivity) getActivity()).setSupportActionBar(binding.noteToolbar);
+        registerForContextMenu(binding.noteListsView);
+
+        Activity activity = getActivity();
 
         //添加笔记
         binding.addNoteFab.setOnClickListener(e->{
@@ -120,8 +126,24 @@ public class NotePage extends Fragment {
             startActivityForResult(intent,NOTE_EXITED);
         });
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(binding.noteToolbar);
-        registerForContextMenu(binding.noteListsView);
+        new Thread(()->{
+            noteVOList=noteDao.getAllPreview_V2();
+
+            activity.runOnUiThread(()->{
+                binding.noteLoadingProgressBar.setVisibility(View.GONE);
+                if(noteVOList==null)
+                {
+                    Toast.makeText(activity, "我们都有不顺利的时候", Toast.LENGTH_SHORT).show();
+                } else if (noteVOList.size()==0) {
+
+                    binding.txbErrorNoteIndic.setText("还没有笔记，轻触右下角以创建一个");
+                }
+                else{
+                    binding.txbErrorNoteIndic.setVisibility(View.GONE);
+                    refreshView_v2();
+                }
+            });
+        }).start();
         return view;
     }
 
