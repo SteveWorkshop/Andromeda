@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path path="/" name="files" />
+    <cache-path path="/" name="cache" />
+<!--  咕噜咕噜，卧槽泥马勒戈壁  -->
+<!--    <external-path path="/" name="external" />-->
     <external-path name="my_images" path="/" />
 </paths>

@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andromeda.BaseApplication;
@@ -34,6 +35,7 @@ import com.example.andromeda.entity.vo.NoteVO;
 import com.example.andromeda.ui.EditNoteActivity;
 import com.example.andromeda.R;
 import com.example.andromeda.databinding.FragmentNotePageBinding;
+import com.example.andromeda.util.VersionUpdateUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
@@ -259,6 +261,22 @@ public class NotePage extends Fragment {
             case R.id.edit_tags:
             {
                 jumpPage(this,new TagEditPage());
+                break;
+            }
+            case R.id.about:{
+                MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
+                builder.setTitle("关于此应用程序");
+                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+                View digView=layoutInflater.inflate(R.layout.about_us_info_page,null);
+                TextView ver = digView.findViewById(R.id.txb_version_name);
+                String verName= VersionUpdateUtil.getVerName(getContext());
+                ver.setText(verName);
+                builder.setView(digView);
+
+                builder.setPositiveButton("确定",(dialog,which)->{
+
+                });
+                builder.show();
                 break;
             }
             default:{
