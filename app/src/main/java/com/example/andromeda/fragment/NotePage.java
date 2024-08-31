@@ -3,8 +3,10 @@ package com.example.andromeda.fragment;
 import android.Manifest;
 import android.app.Activity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -37,6 +40,7 @@ import com.example.andromeda.config.DBConfig;
 import com.example.andromeda.dao.NoteDao;
 import com.example.andromeda.entity.vo.NoteVO;
 
+import com.example.andromeda.service.NoteBackupService;
 import com.example.andromeda.ui.EditNoteActivity;
 import com.example.andromeda.R;
 import com.example.andromeda.databinding.FragmentNotePageBinding;
@@ -79,6 +83,21 @@ public class NotePage extends Fragment {
     private List<NoteVO> noteVOList;
 
     private int mPosition;
+
+
+    private NoteBackupService.BackupBinder binder;
+
+    private ServiceConnection connection=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            binder= (NoteBackupService.BackupBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     public NotePage() {
         // Required empty public constructor
@@ -277,8 +296,13 @@ public class NotePage extends Fragment {
                         ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.POST_NOTIFICATIONS},1);
                     }
                     else {
-                        //
+                        //直接启动
+                        startBackup();
                     }
+                }
+                else{
+                    //直接启动
+                    startBackup();
                 }
                 break;
             }
@@ -312,10 +336,12 @@ public class NotePage extends Fragment {
             case 1:{
                 if(grantResults.length!=0&&grantResults[0]==PackageManager.PERMISSION_GRANTED)
                 {
-                    
+                    //启动
+                    //todo:备份恢复参数选择
+                    startBackup();
                 }
                 else{
-                    Toast.makeText(getContext(), "由于Google培养基的机制，我们必须显示通知保证后台稳定性", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "由于Google培养基的机制，我们必须显示通知保证后台稳定性，请允许我们，我们不会进行任何广告营销行为", Toast.LENGTH_SHORT).show();
                 }
             }
             default:{break;}
@@ -361,5 +387,13 @@ public class NotePage extends Fragment {
             startActivityForResult(intent, NotePage.EDIT_EXITED);
         });
         binding.noteListsView.setAdapter(adapter);
+    }
+
+    private void startBackup(){
+        if(binder==null)
+        {
+            return;
+        }
+        binder.startBackup();
     }
 }

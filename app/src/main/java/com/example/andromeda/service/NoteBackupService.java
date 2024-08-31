@@ -36,17 +36,21 @@ public class NoteBackupService extends Service {
         @Override
         public void onProgress(int progress) {
             
-            //getNotificationManager().notify(1,getNotification("备份中"，progress));
+            getNotificationManager().notify(1,getNotification("备份中",progress));
         }
 
         @Override
         public void onSuccess() {
-
+            backupTask=null;
+            stopForeground(true);
+            getNotificationManager().notify(1,getNotification("已备份到下载文件夹，请使用系统自带文件管理器查看",-1));
         }
 
         @Override
         public void onFailure() {
-
+            backupTask=null;
+            stopForeground(true);
+            getNotificationManager().notify(1,getNotification("我们需要一种清洁植物燃料，请通过内部集线器联系我们",-1));
         }
     };
 
@@ -58,7 +62,7 @@ public class NoteBackupService extends Service {
     }
 
 
-    class BackupBinder extends Binder{
+    public class BackupBinder extends Binder{
         public void startBackup()
         {
             backupTask=new BackupTask();
