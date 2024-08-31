@@ -37,5 +37,6 @@ public interface TagDao {
     @Query("delete from Tag where id=:id")
     int eraseById(Long id);
 
-
+    @Query("select * from Tag")
+    List<Tag> backupAll();
 }

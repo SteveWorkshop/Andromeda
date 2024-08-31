@@ -45,4 +45,9 @@ public interface NoteDao {
 
     @Query("select count (*) from Note where tag=:tid")
     int getCount(Long tid);
+
+    //todo: slow SQL warning!
+    @Query("select * from Note")
+    List<Note> backupAll();
+
 }

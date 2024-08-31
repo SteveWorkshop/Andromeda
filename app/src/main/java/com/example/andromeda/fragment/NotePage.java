@@ -1,14 +1,19 @@
 package com.example.andromeda.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -263,6 +268,20 @@ public class NotePage extends Fragment {
                 jumpPage(this,new TagEditPage());
                 break;
             }
+            case R.id.back_up_notes:{
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU)
+                {
+                    //处理通知权限
+                    if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.POST_NOTIFICATIONS)!= PackageManager.PERMISSION_GRANTED)
+                    {
+                        ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.POST_NOTIFICATIONS},1);
+                    }
+                    else {
+                        //
+                    }
+                }
+                break;
+            }
             case R.id.about:{
                 MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
                 builder.setTitle("关于此应用程序");
@@ -286,8 +305,24 @@ public class NotePage extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 1:{
+                if(grantResults.length!=0&&grantResults[0]==PackageManager.PERMISSION_GRANTED)
+                {
+                    
+                }
+                else{
+                    Toast.makeText(getContext(), "由于Google培养基的机制，我们必须显示通知保证后台稳定性", Toast.LENGTH_SHORT).show();
+                }
+            }
+            default:{break;}
+        }
+    }
 
-    private void jumpPage(Fragment frag1,Fragment frag2)
+    private void jumpPage(Fragment frag1, Fragment frag2)
     {
         FragmentManager fragmentManager = getParentFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

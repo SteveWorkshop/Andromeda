@@ -311,18 +311,36 @@ public class DrawPage extends Fragment {
         builder.setTitle("选择画笔颜色");
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.flyout_simple_color_picker_v2, null);
         builder.setView(dialogView);
+        EditText colorHex = dialogView.findViewById(R.id.txb_color_hex_v);
         RecyclerView list = dialogView.findViewById(R.id.color_pane);
         loadColorPane(list);
         builder.setPositiveButton("确定", (dialog, which) -> {
-            ColorAdapter adapter = (ColorAdapter) list.getAdapter();
-            if (adapter != null) {
-                int mPosition = adapter.getMPosition();
-                if (mPosition >= 0) {
-                    ColorAdapter.ColorTag tag = colorList.get(mPosition);
-                    colorSelected = tag.getValue();
+            String custom=colorHex.getText().toString();
+
+            if(custom.length()>0)
+            {
+                try{
+                    int cl = Integer.parseInt(custom, 16);
+                    colorSelected=cl;
                     canvasFlyout.setPaintColor(colorSelected);
                 }
+                catch (NumberFormatException e)
+                {
+                    Toast.makeText(getContext(), "输入数值无效！", Toast.LENGTH_SHORT).show();
+                }
             }
+            else{
+                ColorAdapter adapter = (ColorAdapter) list.getAdapter();
+                if (adapter != null) {
+                    int mPosition = adapter.getMPosition();
+                    if (mPosition >= 0) {
+                        ColorAdapter.ColorTag tag = colorList.get(mPosition);
+                        colorSelected = tag.getValue();
+                        canvasFlyout.setPaintColor(colorSelected);
+                    }
+                }
+            }
+
         });
         builder.setNegativeButton("取消", ((dialog, which) -> {
 
