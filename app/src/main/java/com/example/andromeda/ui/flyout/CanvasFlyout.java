@@ -117,7 +117,7 @@ public class CanvasFlyout extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //触摸事件
-        System.out.println("____________________touched!"+event.getToolMajor());
+        //System.out.println("____________________touched!"+event.getToolMajor());
         //todo:判断是触控笔
         if(canOperate(event.getToolMajor(),mode))
         {

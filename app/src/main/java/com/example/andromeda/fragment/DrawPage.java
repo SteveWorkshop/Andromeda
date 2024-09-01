@@ -317,17 +317,21 @@ public class DrawPage extends Fragment {
         builder.setPositiveButton("确定", (dialog, which) -> {
             String custom=colorHex.getText().toString();
 
-            if(custom.length()>0)
+            if(!custom.isEmpty())
             {
+                if(!custom.startsWith("#")){
+                    custom="#"+custom;
+                }
+                int color=Color.CYAN;
                 try{
-                    int cl = Integer.parseInt(custom, 16);
-                    colorSelected=cl;
-                    canvasFlyout.setPaintColor(colorSelected);
+                    color=Color.parseColor(custom);
                 }
-                catch (NumberFormatException e)
+                catch (IllegalArgumentException e)
                 {
-                    Toast.makeText(getContext(), "输入数值无效！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "输入格式不正确", Toast.LENGTH_SHORT).show();
                 }
+                colorSelected=color;
+                canvasFlyout.setPaintColor(color);
             }
             else{
                 ColorAdapter adapter = (ColorAdapter) list.getAdapter();
