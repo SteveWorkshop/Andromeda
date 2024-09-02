@@ -291,4 +291,6 @@
     <color name="black">#000000</color><!--黑色 -->
 <!--    <color name="transparent">#0000</color>&lt;!&ndash; 透明 &ndash;&gt;-->
 <!--    <color name="transparent2">#8000</color>&lt;!&ndash; 透明 &ndash;&gt;-->
+
+    <color name="start_background">#212121</color>
 </resources>
