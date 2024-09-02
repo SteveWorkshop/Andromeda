@@ -16,9 +16,15 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.andromeda.R;
+import com.example.andromeda.service.task.BackupServiceListener;
 import com.example.andromeda.service.task.BackupTask;
 import com.example.andromeda.service.task.RestoreTask;
 import com.example.andromeda.ui.MainActivity;
+
+import java.io.InputStream;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class NoteBackupService extends Service {
 
@@ -28,7 +34,16 @@ public class NoteBackupService extends Service {
     private BackupBinder mBinder=new BackupBinder();
 
 
-    private BackupTask.BackupListener backupListener=new BackupTask.BackupListener() {
+    private BackupServiceListener backupListener=new BackupServiceListener() {
+        @Setter
+        @Getter
+        private boolean mode;
+
+
+        public void setMode(boolean mode) {
+            this.mode = mode;
+        }
+
         @Override
         public void onPrep() {
         }
@@ -36,14 +51,14 @@ public class NoteBackupService extends Service {
         @Override
         public void onProgress(int progress) {
             
-            getNotificationManager().notify(1,getNotification("备份中",progress));
+            getNotificationManager().notify(1,getNotification((mode==MODE_BACKUP ?"备份":"恢复")+"中",progress));
         }
 
         @Override
         public void onSuccess() {
             backupTask=null;
             stopForeground(true);
-            getNotificationManager().notify(1,getNotification("已备份到下载文件夹，请使用系统自带文件管理器查看",-1));
+            getNotificationManager().notify(1,getNotification((mode==MODE_BACKUP?"已备份到下载文件夹，请使用系统自带文件管理器查看":"已完成恢复，可以继续使用软件了"),-1));
         }
 
         @Override
@@ -66,9 +81,19 @@ public class NoteBackupService extends Service {
         public void startBackup()
         {
             backupTask=new BackupTask();
+            backupListener.setMode(BackupServiceListener.MODE_BACKUP);
             backupTask.setListener(backupListener);
             backupTask.execute("");
 
+        }
+
+        public void startRestore(InputStream inputStream)
+        {
+            restoreTask=new RestoreTask();
+            backupListener.setMode(BackupServiceListener.MODE_RESTORE);
+            restoreTask.setListener(backupListener);
+            restoreTask.setInputStream(inputStream);
+            restoreTask.execute("");
         }
     }
 

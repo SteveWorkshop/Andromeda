@@ -26,6 +26,11 @@
         android:title="备份全部数据"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/restore_notes"
+        android:title="导入备份数据"
+        app:showAsAction="never"
+        />
+    <item
         android:id="@+id/about"
         android:title="关于我们"
         app:showAsAction="never"

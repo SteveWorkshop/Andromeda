@@ -43,7 +43,7 @@ public class BackupTask extends AsyncTask<String,Integer,Integer> {
 
     @Getter
     @Setter
-    protected BackupListener listener;
+    protected BackupServiceListener listener;
 
     public BackupTask(){
         context= BaseApplication.getApplication();
@@ -51,7 +51,7 @@ public class BackupTask extends AsyncTask<String,Integer,Integer> {
         tagDao=DBConfig.getInstance(context).getTagDao();
     }
 
-    public BackupTask(BackupListener listener)
+    public BackupTask(BackupServiceListener listener)
     {
         context= BaseApplication.getApplication();
         noteDao= DBConfig.getInstance(context).getNoteDao();
@@ -137,13 +137,5 @@ public class BackupTask extends AsyncTask<String,Integer,Integer> {
             }
             default:{break;}
         }
-    }
-
-
-    public interface BackupListener{
-        void onPrep();
-        void onProgress(int progress);
-        void onSuccess();
-        void onFailure();
     }
 }

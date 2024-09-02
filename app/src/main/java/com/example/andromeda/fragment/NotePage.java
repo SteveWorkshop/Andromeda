@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -48,6 +49,8 @@ import com.example.andromeda.util.VersionUpdateUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -62,6 +65,8 @@ public class NotePage extends Fragment {
 
     public static final int NOTE_EXITED=0;
     public static final int EDIT_EXITED=1;
+
+    public static final int OPEN_BACKUP=1024;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -222,6 +227,23 @@ public class NotePage extends Fragment {
                 }
                 break;
             }
+            case OPEN_BACKUP:{
+                if(resultCode==Activity.RESULT_OK){
+                    if(data!=null)
+                    {
+
+                        try {
+                            Uri uri = data.getData();
+                            InputStream is = getContext().getContentResolver().openInputStream(uri);
+                            startRestore(is);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(), "我们遇到了未知问题", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                break;
+            }
             default:{
                 break;
             }
@@ -306,6 +328,15 @@ public class NotePage extends Fragment {
                 }
                 break;
             }
+            case R.id.restore_notes:{
+                //启动SAF
+                Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                startActivityForResult(intent,OPEN_BACKUP);
+                break;
+            }
+
             case R.id.about:{
                 MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(getContext());
                 builder.setTitle("关于此应用程序");
@@ -395,5 +426,14 @@ public class NotePage extends Fragment {
             return;
         }
         binder.startBackup();
+    }
+
+    private void startRestore(InputStream inputStream)
+    {
+        if(binder==null)
+        {
+            return;
+        }
+        binder.startRestore(inputStream);
     }
 }
