@@ -1,4 +1,4 @@
-package com.example.andromeda.comp.model;
+package com.example.andromeda.ui.flyout.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

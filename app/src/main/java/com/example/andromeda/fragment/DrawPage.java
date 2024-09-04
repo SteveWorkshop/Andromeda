@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -150,6 +151,11 @@ public class DrawPage extends Fragment {
             }
         });
 
+        binding.btnInsertImageI.setOnClickListener(v->{
+
+            selectInsertSource(binding.btnInsertImageI);
+        });
+
         binding.btnCleanI.setOnClickListener(v -> {
             canvasFlyout.clearAll();
         });
@@ -165,14 +171,6 @@ public class DrawPage extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle("Ninja Cat");
-        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View digView = layoutInflater.inflate(R.layout.warning_dialog, null);
-        builder.setView(digView);
-        builder.setPositiveButton("确定", (dialog, which) -> {
-        });
-        builder.show();
     }
 
     @Override
@@ -387,15 +385,11 @@ public class DrawPage extends Fragment {
                     break;
                 }
                 case R.id.select_from_file: {
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(imageUri));
-                        //todo:显示图片
-
-
-                    } catch (IOException e) {
-                        Toast.makeText(getActivity(), "喔唷，崩溃了" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-
+                    //打开文件选择器
+                    Intent intent = new  Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent .setType("image/*");
+                    startActivityForResult(intent,SELECT_FILE);
                     break;
                 }
                 default: {
@@ -404,8 +398,21 @@ public class DrawPage extends Fragment {
             }
             return false;
         });
+        popupMenu.show();
     }
 
+
+    private void showDebugWarningDialog()
+    {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("Ninja Cat");
+        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+        View digView = layoutInflater.inflate(R.layout.warning_dialog, null);
+        builder.setView(digView);
+        builder.setPositiveButton("确定", (dialog, which) -> {
+        });
+        builder.show();
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -415,17 +422,32 @@ public class DrawPage extends Fragment {
                 if (resultCode == Activity.RESULT_OK) {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(getContext().getContentResolver().openInputStream(imageUri));
-
-                    } catch (FileNotFoundException e) {
+                        bitmap=autoRotate(bitmap);
+                        canvasFlyout.addBitMap(bitmap);
+                    } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getContext(), "呜呜呜~不开心~", Toast.LENGTH_SHORT).show();
                     }
                 }
-
-
                 break;
             }
+            case SELECT_FILE:{
+                if (resultCode == Activity.RESULT_OK && data != null)
+                {
 
+                    try {
+                        Uri uri = data.getData();
+                        ParcelFileDescriptor pfd = getContext().getContentResolver().openFileDescriptor(uri, "r");
+                        Bitmap bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+                        //bitmap=autoRotate(bitmap);//这里不需要！！！！
+                        canvasFlyout.addBitMap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "呜呜呜~不开心~", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            }
             default: {
                 break;
             }
@@ -435,20 +457,24 @@ public class DrawPage extends Fragment {
 
     private Bitmap autoRotate(Bitmap bitmap) throws IOException {
         ExifInterface exifInterface=new ExifInterface(outputFile.getPath());
+        Bitmap rotated=bitmap;
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         switch(orientation){
             case ExifInterface.ORIENTATION_ROTATE_90:{
-
+                rotated=rotateBitmap(bitmap,90);
                 break;
             }
             case ExifInterface.ORIENTATION_ROTATE_180:{
-
+                rotated=rotateBitmap(bitmap,180);
                 break;
             }
-
+            case ExifInterface.ORIENTATION_ROTATE_270:{
+                rotated=rotateBitmap(bitmap,270);
+                break;
+            }
             default:{break;}
         }
-        return null;
+        return rotated;
     }
 
     private Bitmap rotateBitmap(Bitmap bitmap,int degree) {

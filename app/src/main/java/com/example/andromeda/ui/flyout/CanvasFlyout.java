@@ -1,6 +1,7 @@
 package com.example.andromeda.ui.flyout;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,7 +13,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.andromeda.comp.model.Model;
+import com.example.andromeda.ui.flyout.model.ImagePath;
+import com.example.andromeda.ui.flyout.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,37 +76,14 @@ public class CanvasFlyout extends View {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        if(pathSaveList.size()>0)
-        {
-            for(LinePath linePath:pathSaveList)
-            {
-                paint.setColor(linePath.color);
-                paint.setStrokeWidth(linePath.size);
-                canvas.drawPath(linePath.path,paint);
-            }
-            if(path!=null)
-            {
-                paint.setColor(paintColor);
-                paint.setStrokeWidth(strokeSize);
-                canvas.drawPath(path,paint);
-            }
-        }
-
-        //new rendering engine to support insert pictures
-//        if(paths.size()>0)
+//        if(pathSaveList.size()>0)
 //        {
-//            for(Model path:paths)
+//            for(LinePath linePath:pathSaveList)
 //            {
-//                if(path.getType()==Model.PATH)
-//                {
-//                    LinePath linePath=(LinePath) path.getData();
-//                    paint.setColor(linePath.color);
-//                    paint.setStrokeWidth(linePath.size);
-//                    canvas.drawPath(linePath.path,paint);
-//
-//                }
+//                paint.setColor(linePath.color);
+//                paint.setStrokeWidth(linePath.size);
+//                canvas.drawPath(linePath.path,paint);
 //            }
-//
 //            if(path!=null)
 //            {
 //                paint.setColor(paintColor);
@@ -112,6 +91,35 @@ public class CanvasFlyout extends View {
 //                canvas.drawPath(path,paint);
 //            }
 //        }
+
+        //new rendering engine to support insert pictures
+        if(paths.size()>0)
+        {
+            for(Model path:paths)
+            {
+                if(path.getType()==Model.PATH)
+                {
+                    LinePath linePath=(LinePath) path.getData();
+                    paint.setColor(linePath.color);
+                    paint.setStrokeWidth(linePath.size);
+                    canvas.drawPath(linePath.path,paint);
+                }
+                else{
+                    //绘图
+                    ImagePath imagePath=(ImagePath)path.getData();
+                    Bitmap bitmap=imagePath.getBitmap();
+                    //todo:调整大小
+                    canvas.drawBitmap(bitmap,0,0,paint);
+                }
+            }
+
+            if(path!=null)
+            {
+                paint.setColor(paintColor);
+                paint.setStrokeWidth(strokeSize);
+                canvas.drawPath(path,paint);
+            }
+        }
     }
 
     @Override
@@ -143,12 +151,10 @@ public class CanvasFlyout extends View {
                         linePath.path=path;
                         linePath.color=paintColor;
                         linePath.size=strokeSize;
-                        pathSaveList.add(linePath);
-
-
+                       // pathSaveList.add(linePath);
 
                         Model model=new Model();
-                        model.setType(Model.IMG);
+                        model.setType(Model.PATH);
                         model.setData(linePath);
                         paths.add(model);
                     }
@@ -161,18 +167,26 @@ public class CanvasFlyout extends View {
     }
 
     //提供对外API
+    //todo：自定义或自适应图片尺寸
+    public  void addBitMap(Bitmap bitmap)
+    {
+        ImagePath imagePath=new ImagePath();
+        imagePath.setBitmap(bitmap);
 
+        Model model=new Model();
+        model.setType(Model.IMG);
+
+        model.setData(imagePath);
+        paths.add(model);
+        invalidate();
+    }
 
     //todo:支持redo功能
     public void undo(){
-        if(pathSaveList.size()>0)
+        if(!paths.isEmpty())
         {
-            pathSaveList.remove(pathSaveList.size()-1);
-
-
+            //pathSaveList.remove(pathSaveList.size()-1);
             paths.remove(paths.size()-1);
-
-
             invalidate();
         }
     }
@@ -190,7 +204,7 @@ public class CanvasFlyout extends View {
 
     public void clearAll()
     {
-        pathSaveList.clear();
+        //pathSaveList.clear();
         paths.clear();
         invalidate();
     }
