@@ -16,36 +16,35 @@
 
 ### 启动画面
 
-![启动画面](.\docs\Screenshot_20240904-223241.png)
+![启动画面](docs/Screenshot_20240904-223241.png)
 
 ### 笔记列表
 
-![笔记列表](.\docs\Screenshot_20240904-225058.png)
+![笔记列表](docs/Screenshot_20240904-225058.png)
 
 ### 编辑器UI
 
-![编辑器](.\docs\Screenshot_20240904-225109.png)
+![编辑器](docs/Screenshot_20240904-225109.png)
 
 ### 滚动显示
 
-![滚动显示](.\docs\Screenshot_20240904-225217.png)
+![滚动显示](docs/Screenshot_20240904-225217.png)
 
 ### 画板页面
 
-![画板页面](.\docs\Screenshot_20240904-225226.png)
+![画板页面](docs/Screenshot_20240904-225226.png)
 
 ### 调整粗细
 
-![调整粗细](.\docs\Screenshot_20240904-225232.png)
+![调整粗细](docs/Screenshot_20240904-225232.png)
 
 ### 自定义颜色
 
-![自定义颜色](.\docs\Screenshot_20240904-225237.png)
+![自定义颜色](docs/Screenshot_20240904-225237.png)
 
+### 分享至社交媒体
 
-# 分享至社交媒体
-
-![导出](.\docs\Screenshot_20240904-225253.png)
+![导出](docs/Screenshot_20240904-225253.png)
 
 敬请期待，好东西就要来了！
 请坐和放宽，滚回功率，进入新的植物性燃料，迎接幸福倒计时。
