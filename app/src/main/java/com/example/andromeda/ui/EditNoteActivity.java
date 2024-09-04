@@ -72,6 +72,8 @@ public class EditNoteActivity extends AppCompatActivity {
 
     private Long tagId=1L;
 
+    private Long apsid=-1L;
+
     private Long lastSavedId=1l;
 
     private String tagName;
@@ -118,8 +120,19 @@ public class EditNoteActivity extends AppCompatActivity {
             String name=tagListForSelection.get(position).getTagName();
             Long aid=tagListForSelection.get(position).getId();
 
-            if(!Objects.equals(aid, tagId))
+            if(mode==MODE_EDIT)
             {
+                if(!Objects.equals(aid, tagId))
+                {
+                    isModified=true;
+                    viewModel.selectTag(aid,name);
+                    tagId=aid;
+                    tagName=name;
+                    binding.listPopupButton.setText(name);
+                }
+
+            }
+            else{
                 isModified=true;
                 viewModel.selectTag(aid,name);
                 tagId=aid;
@@ -176,6 +189,8 @@ public class EditNoteActivity extends AppCompatActivity {
                 persistNote(id->{
                     if(id>0)
                     {
+                        apsid=id;
+                        mode=MODE_EDIT;
                         Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
                     }
                     else{
