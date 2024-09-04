@@ -52,6 +52,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Objects;
 
 public class EditNoteActivity extends AppCompatActivity {
     private static final String TAG = "EditNoteActivity";
@@ -70,6 +71,8 @@ public class EditNoteActivity extends AppCompatActivity {
     private Long edid=-1L;
 
     private Long tagId=1L;
+
+    private Long lastSavedId=1l;
 
     private String tagName;
 
@@ -102,9 +105,6 @@ public class EditNoteActivity extends AppCompatActivity {
         noteDao= DBConfig.getInstance(BaseApplication.getApplication()).getNoteDao();
         tagDao=DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
 
-        //noteService= NoteServiceImpl.getInstance(this.getApplicationContext());
-        //tagService= TagServiceImpl.getInstance(this.getApplicationContext());
-
         tagListForSelection=tagDao.getAll();
 
         String[] labels=convertTagDisplayTable(tagListForSelection);
@@ -114,20 +114,21 @@ public class EditNoteActivity extends AppCompatActivity {
         listPopupWindow.setAnchorView(binding.listPopupButton);
 
         listPopupWindow.setAdapter(adapter);
-        listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name=tagListForSelection.get(position).getTagName();
-                Long aid=tagListForSelection.get(position).getId();
+        listPopupWindow.setOnItemClickListener((parent, view, position, id) -> {
+            String name=tagListForSelection.get(position).getTagName();
+            Long aid=tagListForSelection.get(position).getId();
+
+            if(!Objects.equals(aid, tagId))
+            {
+                isModified=true;
                 viewModel.selectTag(aid,name);
                 tagId=aid;
                 tagName=name;
-
-
                 binding.listPopupButton.setText(name);
-                listPopupWindow.dismiss();
             }
 
+
+            listPopupWindow.dismiss();
         });
 
         binding.listPopupButton.setOnClickListener (v -> listPopupWindow.show());
@@ -153,8 +154,6 @@ public class EditNoteActivity extends AppCompatActivity {
             viewModel.setEM(MODE_APPEND);
             //do nothing
         }
-
-        
     }
 
 
@@ -168,8 +167,6 @@ public class EditNoteActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        System.out.println("???????????????????????????????");
         switch (item.getItemId())
         {
             case R.id.save_note_menu:
@@ -292,81 +289,6 @@ public class EditNoteActivity extends AppCompatActivity {
             setResult(RESULT_OK);
             finish();
         }
-
-        //修改逻辑，不必要的情况下就别保存了
-//        String title = binding.noteTitleTxb.getText().toString();
-//        Long tag=tagId;
-//        String content = binding.editAreaTxb.getText().toString();
-//        Intent intent=new Intent();
-//        if(mode==MODE_APPEND)//添加笔记
-//        {
-//            Note note=new Note();
-//            note.setTitle(title);
-//            note.setTag(tag);
-//            note.setContent(content);
-//            Long nwid = saveNote(note);
-//            //intent.putExtra("mode",MODE_APPEND);
-//            if(nwid>0)
-//            {
-//                note.setId(nwid);
-//                //名称放进去
-//                NoteVO vo=new NoteVO();
-//                vo.id=nwid;
-//                vo.tagId=tagId;
-//                vo.tagName=tagName;
-//                vo.createTime=note.getCreateTime();
-//                vo.updateTime=note.getUpdateTime();
-//                vo.title=note.getTitle();
-//                vo.content=note.getContent();
-//
-//                intent.putExtra("data",vo);
-//                setResult(RESULT_OK,intent);
-//            }
-//            else{
-//                Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
-//                setResult(RESULT_CANCELED);
-//            }
-//        }
-//        else{//修改笔记
-//            if(isModified)
-//            {
-//                Toast.makeText(this, edid+", 检测到更改！", Toast.LENGTH_SHORT).show();
-//                //todo:异常处理
-//                Note note=new Note();
-//                note.setTitle(title);
-//                note.setTag(tag);
-//                note.setContent(content);
-//                note.setId(edid);
-//                //intent.putExtra("mode",MODE_EDIT);
-//
-//                NoteVO vo=new NoteVO();
-//                vo.id=edid;
-//                vo.tagId=tagId;
-//                vo.tagName=tagName;
-//                vo.createTime=note.getCreateTime();
-//                vo.updateTime=System.currentTimeMillis();
-//                vo.title=title;
-//                vo.content=content;
-//
-//
-//                int rows = updateNote(note);
-//                if(rows>0)
-//                {
-//                    intent.putExtra("data",vo);
-//                    setResult(RESULT_OK,intent);
-//                }
-//                else{
-//                    Toast.makeText(this, "喔唷，崩溃了", Toast.LENGTH_SHORT).show();
-//                    setResult(RESULT_CANCELED);
-//                }
-//            }
-//            else{
-//                //什么都没做
-//                setResult(RESULT_OK);
-//            }
-//        }
-        //必须返回一个数据
-
     }
 
 
@@ -491,6 +413,7 @@ public class EditNoteActivity extends AppCompatActivity {
         binding.noteTitleTxb.setText(note.title);
         binding.editAreaTxb.setText(note.content);
         tagId=note.tagId;
+        lastSavedId=tagId;
         tagName=note.tagName;
         binding.listPopupButton.setText(note.tagName);
     }

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -75,6 +77,7 @@ public class DrawPage extends Fragment {
     private int colorSelected = Color.CYAN;
 
     private Uri imageUri;
+    private File outputFile;
 
     private List<ColorAdapter.ColorTag> colorList;
 
@@ -368,7 +371,7 @@ public class DrawPage extends Fragment {
                     String fileName = RandomUtil.getRandomName();
 
 
-                    File outputFile = new File(getActivity().getExternalCacheDir(), fileName);
+                    outputFile = new File(getActivity().getExternalCacheDir(), fileName);
                     try {
                         if (outputFile.exists()) {
                             outputFile.delete();
@@ -410,7 +413,13 @@ public class DrawPage extends Fragment {
         switch (requestCode) {
             case TAKE_PHOTO: {
                 if (resultCode == Activity.RESULT_OK) {
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContext().getContentResolver().openInputStream(imageUri));
 
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "呜呜呜~不开心~", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
 
@@ -421,5 +430,33 @@ public class DrawPage extends Fragment {
                 break;
             }
         }
+    }
+
+
+    private Bitmap autoRotate(Bitmap bitmap) throws IOException {
+        ExifInterface exifInterface=new ExifInterface(outputFile.getPath());
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        switch(orientation){
+            case ExifInterface.ORIENTATION_ROTATE_90:{
+
+                break;
+            }
+            case ExifInterface.ORIENTATION_ROTATE_180:{
+
+                break;
+            }
+
+            default:{break;}
+        }
+        return null;
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap,int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
+                matrix, true);
+        bitmap.recycle() ;// 将不再需要的Bitmap对象回收 return rotatedBitmap
+        return rotatedBitmap;
     }
 }
