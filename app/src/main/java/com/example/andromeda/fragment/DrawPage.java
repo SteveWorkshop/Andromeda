@@ -220,6 +220,23 @@ public class DrawPage extends Fragment {
                 }
                 break;
             }
+            //输入设备选择菜单
+            case R.id.input_touch_mode:{
+                canvasFlyout.setMode(CanvasFlyout.TOUCH_MODE);
+                break;
+            }
+            case R.id.input_pen_mode:{
+                canvasFlyout.setMode(CanvasFlyout.PEN_MODE);
+                break;
+            }
+            case R.id.input_mouse_mode:{
+                canvasFlyout.setMode(CanvasFlyout.MOUSE_MODE);
+                break;
+            }
+            case R.id.input_hybrid_mode:{
+                canvasFlyout.setMode(CanvasFlyout.HYBRID_MODE);
+                break;
+            }
             default: {
                 break;
             }

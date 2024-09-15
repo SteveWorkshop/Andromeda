@@ -17,6 +17,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=false)
 @Entity
 public class Tag extends BaseEntity implements Serializable {
+    public static final long DEFAULT_TAG=-1024l;
     private String tagName;
     //TODO: 标签分类与颜色
 }

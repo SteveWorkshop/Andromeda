@@ -26,10 +26,10 @@ public interface NoteDao {
     List<Note> getAllPreview();
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("select Note.id as id,Note.title,Note.createTime,Note.updateTime,Tag.id as tagId,Tag.tagName from Note,Tag where Note.tag=Tag.id order by Note.updateTime desc")
+    @Query("select Note.id as id,Note.title,Note.createTime,Note.updateTime,Tag.id as tagId,Tag.tagName from Note left join Tag on Note.tag=Tag.id order by Note.updateTime desc")
     List<NoteVO> getAllPreview_V2();
 
-    @Query("select Note.id as id,Note.title,Note.content,Note.createTime,Note.updateTime,Tag.id as tagId,Tag.tagName from Note,Tag where Note.tag=Tag.id and Note.id=:id")
+    @Query("select Note.id as id,Note.title,Note.content,Note.createTime,Note.updateTime,Tag.id as tagId,Tag.tagName from Note left join Tag on Note.tag=Tag.id where Note.id=:id")
     NoteVO getById_V2(Long id);
 
     @Query("select * from Note where id=:id")

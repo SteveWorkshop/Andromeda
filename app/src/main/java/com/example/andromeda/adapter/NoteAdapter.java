@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.andromeda.R;
+import com.example.andromeda.entity.Tag;
 import com.example.andromeda.entity.vo.NoteVO;
 
 import java.text.SimpleDateFormat;
@@ -61,13 +62,21 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         String title=note.title;
         String tagName=note.tagName;
         Long updateTime=note.updateTime;
+        Long tagId=note.tagId;
 
         String strDateFormat = "yyyy/MM/dd HH:mm";
         SimpleDateFormat simpleDateFormat=new SimpleDateFormat(strDateFormat);
         Date date=new Date(updateTime);
         String convertedTime=simpleDateFormat.format(date);
         holder.title.setText(title);
-        holder.tag.setText(tagName);
+        if(tagId==null|| tagId== Tag.DEFAULT_TAG||tagName==null|| tagName.isEmpty())
+        {
+            holder.tag.setText("无标签");
+        }
+        else{
+            holder.tag.setText(tagName);
+        }
+
         holder.updateTime.setText(convertedTime);
     }
 

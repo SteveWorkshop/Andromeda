@@ -28,9 +28,11 @@ public class CanvasFlyout extends View {
     public static final int TOUCH_MODE=0;
     public static final int PEN_MODE=1;
     public static final int MOUSE_MODE=2;
-    public static final int MIX_MODE=3;
+    public static final int HYBRID_MODE=3;
 
-    private int mode=0;
+    @Setter
+    @Getter
+    private int mode=PEN_MODE;
 
     @Setter
     @Getter
@@ -125,9 +127,9 @@ public class CanvasFlyout extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //触摸事件
-        //System.out.println("____________________touched!"+event.getToolMajor());
+        System.out.println("____________________touched!"+event.getToolType(0));
         //todo:判断是触控笔
-        if(canOperate(event.getToolMajor(),mode))
+        if(canOperate(event.getToolType(0),mode))
         {
             switch (event.getAction())
             {
@@ -213,18 +215,18 @@ public class CanvasFlyout extends View {
     //todo: better handle input device type
     private boolean canOperate(float type,int mode)
     {
-//        if(mode==TOUCH_MODE)
-//        {
-//            return type==MotionEvent.TOOL_TYPE_FINGER;
-//        }
-//        if(mode==PEN_MODE)
-//        {
-//            return type==MotionEvent.TOOL_TYPE_STYLUS;
-//        }
-//        if (mode==MOUSE_MODE)
-//        {
-//            return type==MotionEvent.TOOL_TYPE_MOUSE;
-//        }
+        if(mode==TOUCH_MODE)
+        {
+            return type==MotionEvent.TOOL_TYPE_FINGER;
+        }
+        if(mode==PEN_MODE)
+        {
+            return type==MotionEvent.TOOL_TYPE_STYLUS;
+        }
+        if (mode==MOUSE_MODE)
+        {
+            return type==MotionEvent.TOOL_TYPE_MOUSE;
+        }
         return true;//混合模式
     }
 

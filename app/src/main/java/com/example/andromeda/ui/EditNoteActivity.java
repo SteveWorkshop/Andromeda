@@ -108,6 +108,10 @@ public class EditNoteActivity extends AppCompatActivity {
         tagDao=DBConfig.getInstance(BaseApplication.getApplication()).getTagDao();
 
         tagListForSelection=tagDao.getAll();
+        Tag tag=new Tag();
+        tag.setId(Tag.DEFAULT_TAG);
+        tag.setTagName("默认标签");
+        tagListForSelection.add(0,tag);
 
         String[] labels=convertTagDisplayTable(tagListForSelection);
 
@@ -129,6 +133,10 @@ public class EditNoteActivity extends AppCompatActivity {
                     tagId=aid;
                     tagName=name;
                     binding.listPopupButton.setText(name);
+                    if(tagName==null)
+                    {
+                        tagName="默认标签";
+                    }
                 }
 
             }
@@ -138,6 +146,10 @@ public class EditNoteActivity extends AppCompatActivity {
                 tagId=aid;
                 tagName=name;
                 binding.listPopupButton.setText(name);
+                if(tagName==null)
+                {
+                    tagName="默认标签";
+                }
             }
 
 
@@ -455,9 +467,9 @@ public class EditNoteActivity extends AppCompatActivity {
     {
         if(tagList==null||tagList.isEmpty())
         {
-            return new String[0];
+            return new String[]{"默认标签"};
         }
-        String[] ret=new String[tagList.size()];
+        String[] ret=new String[tagList.size()+1];
         for(int i=0;i<tagList.size();i++)
         {
             ret[i]=tagList.get(i).getTagName();

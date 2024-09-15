@@ -22,5 +22,5 @@ public class Note extends BaseEntity implements Serializable {
 
     private String title;
     private String content;
-    private Long tag;
+    private Long tag=Tag.DEFAULT_TAG;
 }
