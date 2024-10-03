@@ -57,6 +57,11 @@ import java.util.Objects;
 public class EditNoteActivity extends AppCompatActivity {
     private static final String TAG = "EditNoteActivity";
 
+    //callinmode记录怎么打开的
+    //mode用来控制存储按钮，需要切换
+    //由于没有设计放弃保存的功能，因此无论如何都要返回（只要数据库操作成功）
+    //mode可以修改
+    //callinmode不需要
 
     private EditNoteViewModel viewModel;
 
@@ -67,10 +72,15 @@ public class EditNoteActivity extends AppCompatActivity {
 
     private boolean isModified=false;
     private int mode=0;
+
+    private int callInMode=0;
+
+    private NoteVO lastSavedVO=new NoteVO();
+
     private ActivityEditNoteBinding binding;
     private Long edid=-1L;
 
-    private Long tagId=1L;
+    private Long tagId=-1024L;
 
     private Long apsid=-1L;
 
@@ -164,6 +174,7 @@ public class EditNoteActivity extends AppCompatActivity {
         {
             //切换为编辑模式
             mode=MODE_EDIT;
+            callInMode=MODE_EDIT;
             edid=id;
 
             viewModel.setEditInfo(id,MODE_EDIT);
@@ -175,7 +186,7 @@ public class EditNoteActivity extends AppCompatActivity {
         }
         else {
             mode=MODE_APPEND;
-
+            callInMode=MODE_APPEND;
             viewModel.setEM(MODE_APPEND);
             //do nothing
         }
@@ -203,6 +214,13 @@ public class EditNoteActivity extends AppCompatActivity {
                     {
                         apsid=id;
                         mode=MODE_EDIT;
+                        //缓存上次状态，用于返回
+                        lastSavedVO.tagId=tagId;
+                        lastSavedVO.tagName=tagName;
+                        lastSavedVO.title=binding.noteTitleTxb.getText().toString();
+                        lastSavedVO.content=binding.noteTitleTxb.getText().toString();
+                        //lastSavedVO.createTime=note.createTime;
+                        lastSavedVO.updateTime=System.currentTimeMillis();
                         Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
                     }
                     else{
@@ -211,6 +229,12 @@ public class EditNoteActivity extends AppCompatActivity {
                 },rows->{
                     if(rows>0)
                     {
+                        lastSavedVO.tagId=tagId;
+                        lastSavedVO.tagName=tagName;
+                        lastSavedVO.title=binding.noteTitleTxb.getText().toString();
+                        lastSavedVO.content=binding.noteTitleTxb.getText().toString();
+                        //lastSavedVO.createTime=note.createTime;
+                        lastSavedVO.updateTime=System.currentTimeMillis();
                         Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
                     }
                     else{
@@ -267,58 +291,85 @@ public class EditNoteActivity extends AppCompatActivity {
         //super.onBackPressed();
         Intent intent=new Intent();
         if(isModified){
+            //修改逻辑
+            MaterialAlertDialogBuilder builder=new MaterialAlertDialogBuilder(this);
+            builder.setTitle("警告");
+            builder.setMessage("您有未保存的内容，是否保存？");
+            builder.setCancelable(false);
+            builder.setPositiveButton("是",((dialog, which) -> {
+                persistNote(id->{
+                    if(id>0)
+                    {
+                        Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                        NoteVO vo=new NoteVO();
+                        vo.id=id;
+                        vo.tagId=tagId;
+                        vo.tagName=tagName;
+                        vo.content=binding.editAreaTxb.getText().toString();
+                        vo.title=binding.noteTitleTxb.getText().toString();
+                        vo.createTime=System.currentTimeMillis();
+                        vo.updateTime=System.currentTimeMillis();
 
-            persistNote(id->{
-                if(id>0)
-                {
-                    Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
-                    NoteVO vo=new NoteVO();
-                    vo.id=id;
-                    vo.tagId=tagId;
-                    vo.tagName=tagName;
-                    vo.content=binding.editAreaTxb.getText().toString();
-                    vo.title=binding.noteTitleTxb.getText().toString();
-                    vo.createTime=System.currentTimeMillis();
-                    vo.updateTime=System.currentTimeMillis();
+                        intent.putExtra("data",vo);
+                        setResult(RESULT_OK,intent);
+                    }
+                    else{
+                        Toast.makeText(this, "出错了", Toast.LENGTH_SHORT).show();
+                        //返回上次状态
+                        if(lastSavedVO.id==null)
+                        {
+                            setResult(RESULT_CANCELED);
+                        }
+                        else{
+                            intent.putExtra("data",lastSavedVO);
+                            setResult(RESULT_OK,intent);
+                        }
+                    }
+                    finish();
+                },rows->{
+                    if(rows>0)
+                    {
+                        Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
+                        NoteVO vo=new NoteVO();
+                        vo.id=edid;
+                        vo.tagId=tagId;
+                        vo.tagName=tagName;
+                        vo.content=binding.editAreaTxb.getText().toString();
+                        vo.title=binding.noteTitleTxb.getText().toString();
+                        vo.createTime=System.currentTimeMillis();
+                        vo.updateTime=System.currentTimeMillis();
+                        intent.putExtra("data",vo);
+                        setResult(RESULT_OK,intent);
 
-                    intent.putExtra("data",vo);
-                    setResult(RESULT_OK,intent);
-                }
-                else{
-                    Toast.makeText(this, "出错了", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                }
+                    }
+                    else{
+                        if(lastSavedVO.id==null)
+                        {
+                            setResult(RESULT_CANCELED);
+                        }
+                        else{
+                            intent.putExtra("data",lastSavedVO);
+                            setResult(RESULT_OK,intent);
+                        }
+                    }
+                    finish();
+                });
+            }));
+            builder.setNegativeButton("否",((dialog, which) -> {
                 finish();
-            },rows->{
-                if(rows>0)
-                {
-                    Toast.makeText(this, "Ciallo～(∠・ω< )", Toast.LENGTH_SHORT).show();
-                    NoteVO vo=new NoteVO();
-                    vo.id=edid;
-                    vo.tagId=tagId;
-                    vo.tagName=tagName;
-                    vo.content=binding.editAreaTxb.getText().toString();
-                    vo.title=binding.noteTitleTxb.getText().toString();
-                    vo.createTime=System.currentTimeMillis();
-                    vo.updateTime=System.currentTimeMillis();
-                    intent.putExtra("data",vo);
-                    setResult(RESULT_OK,intent);
+            }));
+            builder.setNeutralButton("返回编辑",((dialog, which) -> {
 
-                }
-                else{
-                    Toast.makeText(this, "出错了", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                }
-                finish();
-            });
+            }));
+            builder.show();
         }
         else{
+            //返回最近状态
+            intent.putExtra("data",lastSavedVO);
             setResult(RESULT_OK);
             finish();
         }
     }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -443,6 +494,14 @@ public class EditNoteActivity extends AppCompatActivity {
         lastSavedId=tagId;
         tagName=note.tagName;
         binding.listPopupButton.setText(note.tagName);
+
+        lastSavedVO.id=id;
+        lastSavedVO.tagId=tagId;
+        lastSavedVO.tagName=tagName;
+        lastSavedVO.title=binding.noteTitleTxb.getText().toString();
+        lastSavedVO.content=binding.noteTitleTxb.getText().toString();
+        lastSavedVO.createTime=note.createTime;
+        lastSavedVO.updateTime=note.updateTime;
     }
 
     private class MyWatcher implements TextWatcher {
@@ -469,7 +528,7 @@ public class EditNoteActivity extends AppCompatActivity {
         {
             return new String[]{"默认标签"};
         }
-        String[] ret=new String[tagList.size()+1];
+        String[] ret=new String[tagList.size()];
         for(int i=0;i<tagList.size();i++)
         {
             ret[i]=tagList.get(i).getTagName();

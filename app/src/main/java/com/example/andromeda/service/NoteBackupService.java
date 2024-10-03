@@ -35,14 +35,14 @@ public class NoteBackupService extends Service {
 
 
     private BackupServiceListener backupListener=new BackupServiceListener() {
-        @Setter
         @Getter
+        @Setter
         private boolean mode;
 
 
-        public void setMode(boolean mode) {
-            this.mode = mode;
-        }
+//        public void setMode(boolean mode) {
+//            this.mode = mode;
+//        }
 
         @Override
         public void onPrep() {
